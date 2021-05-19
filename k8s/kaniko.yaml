@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kaniko-job
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:debug
+        imagePullPolicy: IfNotPresent
+        args:
+        - "--context=dir:///build-context"
+        - "--destination=docker-registry-service:5000/nginx-hello-world:latest"
+        - "--insecure" # this is for testing purposes
+        volumeMounts:
+        - name: build-context-volume
+          mountPath: /build-context
+      restartPolicy: OnFailure
+      volumes:
+      - name: build-context-volume
+        hostPath:
+          path: /build-context
+          type: Directory
